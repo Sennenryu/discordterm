@@ -5,7 +5,6 @@ module.exports = {
     display: async function display(valeur, chans) {
 
         var mm = "";
-        console.clear();
         try {
 
             if (chans[valeur].type == "dm") {
