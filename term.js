@@ -16,4 +16,4 @@ client.on('ready', () => {
 
 
 
-client.login('mfa.WO21-HblQH7IsNy2ld2n4hWbFtSL6lhjPaxptNt3AYH3bk3F_Og1vPHEHrWSQ1RRiaVxprFuP53_kuJG-wIk')
+client.login('put your token here')
