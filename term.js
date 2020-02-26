@@ -2,6 +2,8 @@ const Discord = require('discord.js')
 const baseCommand= require('./baseCommand');
 const dmActions= require('./dm/dmActions');
 
+require('dotenv').config();
+
 const client = new Discord.Client();
 
 
@@ -11,9 +13,7 @@ client.on('ready', () => {
     baseCommand.baseCommand(client);
     dmActions.once(client);
 
-})
+});
 
 
-
-
-client.login('put your token here')
+client.login(process.env.TOKEN);
