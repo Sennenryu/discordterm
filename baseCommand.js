@@ -1,15 +1,18 @@
 const readline = require('readline');
-const serv= require('./guild/serv');
-const dm= require('./dm/dm');
+const serv = require('./guild/serv');
+const dm = require('./dm/dm');
+var fs = require('fs');
 
 module.exports = {
-    baseCommand : function baseCommand(client) {
+    baseCommand: function baseCommand(client) {
 
         console.log("Discord, but using 0,1% of your CPU and 3mB of your RAM memory\n \n" +
             "How to use?\n" +
             "   -Type m to open the DM selection\n" +
             "   -Type s to open the server selection\n" +
             "   -Type r anywhere to return to the previous screen")
+
+        require('./notif').notif();
 
         var rl = readline.createInterface({
             input: process.stdin,
@@ -38,7 +41,12 @@ module.exports = {
                 })
 
                 for (let j = k; j < k + 10; j++) {
-                    console.log(`${guil[j].name} : ${j}`);
+                    try {
+
+                        console.log(`${guil[j].name} : ${j}`);
+                    } catch (error) {
+
+                    }
                 }
                 ptotal = Math.ceil(i / 10);
                 console.log(`\nPage ${paj} sur ${ptotal}`)
@@ -63,7 +71,7 @@ module.exports = {
                 var mm = "";
 
                 client.channels.forEach(c => {
-                    
+
                     if (c.type == "dm" || c.type == "group") {
                         i++;
                         chans[i] = c;
@@ -101,13 +109,46 @@ module.exports = {
                 dm.dm(client, chans, ptotal, k, paj, i);
 
             }
+            else if (answer == "c") {
+
+
+                fs.readdir('./notifications/', (err, files) => {
+
+                    var n = files.length;
+
+                    for (let i = 1; i < n; i++) {
+                        try {
+
+                            fs.unlink('./notifications/notif' + i + '.json', function (err) {
+                                if (err) throw err;
+                            });
+
+                        } catch (error) {
+
+                        }
+                    }
+
+                });
+                rl.close();
+                console.clear();
+                setTimeout(() => { baseCommand(client); }, 100);
+
+                
+            }
+            else if (answer == "g") {
+
+                rl.close();
+                console.clear();
+                require('./g').game();
+
+                
+            }
             else {
 
                 rl.close();
                 console.clear();
                 baseCommand(client);
             }
-
 
 
         })

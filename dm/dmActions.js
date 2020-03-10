@@ -1,5 +1,8 @@
 const readline = require('readline');
-const display= require('../display.js');
+const display = require('../display.js');
+const fs = require('fs')  //pour lire les fichiers locaux
+var player = require('play-sound')(opts = {})
+
 
 function dmDisplayFirst(client) {
 
@@ -16,7 +19,7 @@ function dmDisplayFirst(client) {
     var mm = "";
 
     client.channels.forEach(c => {
-        
+
         if (c.type == "dm" || c.type == "group") {
             a++;
             chans[a] = c;
@@ -58,45 +61,45 @@ module.exports = {
 
         valo = valeur;
         chan = chans;
-        if(ga==1){
+        if (ga == 1) {
 
             display.display(valeur, chans);
-            ga=0;
+            ga = 0;
         }
-    
+
         var rltext = readline.createInterface({
             input: process.stdin,
             output: process.stdout
         });
-    
+
         rltext.question('', (answer) => {
-    
+
             if (answer == "r") {
                 console.clear();
                 rltext.close();
                 require('../guild/servActions').servChannelSelectSend(client, ptotal, k, paj, i, val, guil);
-                ga=1;
-                valeur=-1;
+                ga = 1;
+                valeur = -1;
             }
             else {
                 chans[valeur].send(answer);
                 rltext.close();
                 servSend(client, chans, ptotal, k, paj, i, valeur, val, guil);
             }
-    
-    
+
+
         })
-        
+
     },
-    
-    
+
+
     dmSelect: function dmSelect(client, chans, ptotal, k, paj, i, valeur) {
 
         valo = valeur;
         chan = chans;
-        if(go==1){
+        if (go == 1) {
             display.display(valo, chan);
-            go=0;
+            go = 0;
 
         }
 
@@ -112,7 +115,7 @@ module.exports = {
                 dmDisplayFirst(client);
                 rltext.close();
                 require('./dm').dm(client, chans, ptotal, k, paj, i);
-                go=1;
+                go = 1;
                 valeur = -1;
             }
             else {
@@ -126,22 +129,102 @@ module.exports = {
 
     },
 
-    once: function once(client){
-        
+    once: function once(client) {
+
         client.on('message', message => {
             try {
                 if (message.channel == chan[valo]) {
                     display.display(valo, chan);
                 }
-                
-                
+
+
             } catch (error) {
-                
+
             }
-        
-    })
+            if (message.author.id != client.user.id) {
+                if (message.channel.type == "dm" || message.channel.type == "group") {
+
+                    try {
+                        if (message.channel.type == "dm") {
+
+                            var rec = message.channel.recipient.username;
+
+                        }
+                        if (message.channel.type == "group") {
+                            var mm = "";
+                                message.channel.recipients.forEach(m => {
+                                    mm = mm + m.username + ", ";
+                                })
+                                var rec = mm;
+
+                            
+
+                        }
+
+                    } catch (error) {
+                        console.log('');
+
+                    }
+                    var hours = message.createdAt.getUTCHours();
+                    var minutes = message.createdAt.getUTCMinutes();
+
+                    if (hours < 10) {
+                        hours = '0' + hours;
+                    }
+                    if (minutes < 10) {
+                        minutes = '0' + minutes;
+                    }
+
+                    fs.readdir('./notifications/', (err, files) => {
+                        const mess = {
+                            channelname: rec,
+                            content: message.content,
+                            date: hours + 'H' + minutes
+                        }
+
+                        var n = files.length;
+                        fs.writeFile('./notifications/notif' + n + '.json', JSON.stringify(mess), function (err) {
+                            if (err) throw err;
+                        });
+                    });
+
+                }
+
+                if(message.channel.type == "text" && message.content.includes("<@!"+client.user.id+">")){
+                    player.play('./discord-notification.mp3', { timeout: 300 }, function(err){
+                        if (err) throw err
+                      })
+                    var hours = message.createdAt.getUTCHours();
+                    var minutes = message.createdAt.getUTCMinutes();
+
+                    if (hours < 10) {
+                        hours = '0' + hours;
+                    }
+                    if (minutes < 10) {
+                        minutes = '0' + minutes;
+                    }
+
+                    fs.readdir('./notifications/', (err, files) => {
+                        const mess = {
+                            username: message.author.username,
+                            guild: message.guild.name,
+                            channelname: message.channel.name,
+                            content: message.content,
+                            date: hours + 'H' + minutes
+                        }
+
+                        var n = files.length;
+                        fs.writeFile('./notifications/notif' + n + '.json', JSON.stringify(mess), function (err) {
+                            if (err) throw err;
+                        });
+                    });
+
+                }
+            }
+        })
+
     }
-    
+
 
 }
 

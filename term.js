@@ -16,4 +16,4 @@ client.on('ready', () => {
 
 
 
-client.login('put your token here')
+client.login('yourtokenhere')
